@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -5,7 +6,7 @@ const app = express();
 const Henesis = require('@haechi-labs/henesis-sdk-js').default;
 
 const model = [];
-
+const { CLIENT_ID, INTEGRATION_ID } = process.env;
 app.use(cors({
   allowedHeaders: ['Current-Page', 'Last-Page', 'Authorization'],
   exposedHeaders: ['Current-Page', 'Last-Page', 'Authorization'],
@@ -21,18 +22,14 @@ app.get('/*', function(req, res) {
   res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
-henesisConfig = {
-    clientId:"a481485a958f1b82ac310ec4eea27943",
-    integrationId:"tether-tuto-ccrcq"
-}
+async function henesis () {
+  const henesis = new Henesis(CLIENT_ID);
 
-async function henesis ({clientId,integrationId}) {
-  const henesis = new Henesis(clientId);
   // subscribe "streamedBlock", then create subscription object.
   const subscription = await henesis.subscribe(
     "streamedBlock",
     {
-      integrationId,
+      integrationId:INTEGRATION_ID,
       subscriptionId: "your-subscription-id"
     }
   );
@@ -76,7 +73,7 @@ async function henesis ({clientId,integrationId}) {
 }
 
 async function main() {
-    henesis(henesisConfig)
+    henesis()
     app.listen(3000);
 }
 main()
