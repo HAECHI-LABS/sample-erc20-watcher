@@ -7,10 +7,6 @@ const Henesis = require('@haechi-labs/henesis-sdk-js').default;
 
 const model = [];
 const { CLIENT_ID, INTEGRATION_ID } = process.env;
-app.use(cors({
-  allowedHeaders: ['Current-Page', 'Last-Page', 'Authorization'],
-  exposedHeaders: ['Current-Page', 'Last-Page', 'Authorization'],
-}));
 
 app.use(express.static(path.join(__dirname, 'build')));
 

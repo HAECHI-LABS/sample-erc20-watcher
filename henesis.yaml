@@ -1,5 +1,5 @@
 version: v1
-name: tether-tuto 
+name: tether-tutorial
 
 filters:
   contracts:
@@ -12,7 +12,6 @@ blockchain:
   platform: ethereum 
   network: mainnet 
   threshold: 5
-  interval: 1000
 
 provider:
   type: webSocket
