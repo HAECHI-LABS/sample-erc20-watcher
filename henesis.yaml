@@ -11,7 +11,7 @@ filters:
 blockchain:
   platform: ethereum 
   network: mainnet 
-  threshold: 5
+  threshold: 6
 
 provider:
   type: webSocket
