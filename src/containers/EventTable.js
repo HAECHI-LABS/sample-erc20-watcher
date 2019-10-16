@@ -22,7 +22,7 @@ export default class IntegrationList extends React.Component {
       setInterval(this.polling, 1000);
   }
   polling = async () => {
-    this.setState({events: (await load()).data})
+    this.setState({events: (await load()).data.reverse()})
   }
 
   render() {
