@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -11,7 +11,7 @@ const { CLIENT_ID, INTEGRATION_ID } = process.env;
 app.use(express.static(path.join(__dirname, 'build')));
 
 app.get('/api/events', function(req,res) {
-    res.json(model); 
+    res.json(model);
 });
 
 app.get('/*', function(req, res) {
@@ -20,6 +20,7 @@ app.get('/*', function(req, res) {
 
 async function henesis () {
   const henesis = new Henesis(CLIENT_ID);
+  let latestBlockNumber = 0;
 
   // subscribe "streamedBlock", then create subscription object.
   const subscription = await henesis.subscribe(
@@ -31,10 +32,11 @@ async function henesis () {
   );
 
   subscription.on('message', async (message) => {
-    const events = messageToEvents(message)
-    events.forEach( event => model.push(event))
-    console.log(`data received, event:${events}`)
+    const events = messageToEvents(message);
+    events.forEach( event => model.push(event));
+    console.log(`data received, event:${events}`);
     message.ack();
+    latestBlockNumber = message.data.blockMeta.blockNumber;
   });
 
   subscription.on('error', err => {
@@ -42,34 +44,36 @@ async function henesis () {
   });
 
   subscription.on('close', err => {
-    console.error(err);
+      console.error(err);
   });
-    
+
   //parsing logic
   function messageToEvents(message) {
-       const events = message.data.events;
-       const blockMeta = message.data.blockMeta;
-       return events.map(event => {
-           return {
-               event: event.eventName.split('(')[0],
-               contract: event.contractName,
-               transactionHash: event.transaction.hash,
-               args: dataToArgs(event.data),
-               blockMeta,
-           }
-       });
-       function dataToArgs(data) {
-           const res = {};
-           for (let item of data) {
-               res[item.name] = item.value;
-           }
-           return res;
-       }
+      const blockMeta = message.data.blockMeta;
+      if (blockMeta.blockNumber > latestBlockNumber) {
+          const events = message.data.events;
+          return events.map(event => {
+              return {
+                  event: event.eventName.split('(')[0],
+                  contract: event.contractName,
+                  transactionHash: event.transaction.hash,
+                  args: dataToArgs(event.data),
+                  blockMeta,
+              }
+          });
+      }
+      function dataToArgs(data) {
+          const res = {};
+          for (let item of data) {
+              res[item.name] = item.value;
+          }
+          return res;
+      }
    }
 }
 
 async function main() {
-    henesis()
+    henesis();
     app.listen(3000);
 }
-main()
+main();
