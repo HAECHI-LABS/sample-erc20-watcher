@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const app = express();
-const Henesis = require('@haechi-labs/henesis-sdk-js').default;
+const { EventStreamer } = require('@haechi-labs/henesis-sdk-js');
 
 const model = [];
 const { CLIENT_ID, INTEGRATION_ID } = process.env;
@@ -20,14 +20,18 @@ app.get('/*', function(req, res) {
 
 async function henesis() {
   let processedBlockNumber = 0;
-  // create a new Henesis instance
-  const henesis = new Henesis(CLIENT_ID);
+  // create event streamer instance
+  const eventStreamer = new EventStreamer(CLIENT_ID); // you can get client id using henesis-cli
 
   // subscribe "streamedBlock", then create subscription object.
-  const subscription = await henesis.subscribe('streamedBlock', {
-    integrationId: INTEGRATION_ID,
-    subscriptionId: 'your-subscription-id'
-  });
+  const subscription = await eventStreamer.subscribe(
+      'streamedBlock',
+      {
+        integrationId: INTEGRATION_ID,
+        subscriptionId: 'your-subscription-id',
+        ackTimeout: 30 * 1000 // default is 10 * 1000(ms)
+      }
+  );
 
   subscription.on('message', async message => {
     // In case of disconnection due to network abnormalities (such as Wi-Fi problem), up to one duplicated message can be delivered.
@@ -37,6 +41,7 @@ async function henesis() {
       // processing events
       // For example, you can save events to your database.
       events.forEach(event => model.push(event));
+      //console.log(JSON.stringify(events, undefined, 2));
       console.log(`data received, event:${events}`);
       // You need to remember the processed index(messageId or block number) of the message you received.
       setLastBlockNumber(message);
