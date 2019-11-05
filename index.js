@@ -44,7 +44,7 @@ async function henesis() {
       //console.log(JSON.stringify(events, undefined, 2));
       console.log(`data received, event:${events}`);
       // You need to remember the processed index(messageId or block number) of the message you received.
-      setLastBlockNumber(message);
+      setProcessedBlockNumber(message);
     }
     message.ack(); // (MUST) Send an ACK message even if duplicated message!!
   });
@@ -83,8 +83,8 @@ async function henesis() {
     return message.data.blockMeta.blockNumber;
   }
 
-  function setLastBlockNumber(blockNumber) {
-    processedBlockNumber = blockNumber;
+  function setProcessedBlockNumber(message) {
+    processedBlockNumber = message.data.blockMeta.blockNumber;
   }
 }
 
