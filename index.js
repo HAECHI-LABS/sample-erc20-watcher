@@ -41,8 +41,7 @@ async function henesis() {
       // processing events
       // For example, you can save events to your database.
       events.forEach(event => model.push(event));
-      //console.log(JSON.stringify(events, undefined, 2));
-      console.log(`data received, event:${events}`);
+      console.log(`data received, event:${JSON.stringify(events, undefined, 2)}`);
       // You need to remember the processed index(messageId or block number) of the message you received.
       setProcessedBlockNumber(message);
     }
